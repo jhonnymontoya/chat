@@ -1,0 +1,5 @@
+#Se omiten todos los archivos de este directorio
+*
+
+#Menos el propio fichero git ignore
+!.gitignore
