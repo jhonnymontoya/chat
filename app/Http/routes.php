@@ -24,6 +24,7 @@ Route::get('/chat', 'PushController@index');
 Route::post('/mensaje', 'MessageController@mensaje');
 
 
+Route::get('/prueba', 'PushController@prueba');
 /*Route::group(['middleware' => 'web'], function () {
 
     Route::controllers([

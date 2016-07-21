@@ -28,4 +28,9 @@ class User extends Authenticatable
 	{
 		return $this->hasMany('App\Models\Mensajes', 'de', 'id');
 	}
+
+    public function leidos()
+	{
+		return $this->hasMany('App\Models\Leidos', 'usuario', 'id');
+	}
 }

@@ -18,6 +18,11 @@ class Mensajes extends Model
 		return $this->belongsTo('App\Models\User', 'de', 'id');
 	}
 
+	public function leidos()
+	{
+		return $this->hasMany('App\Models\Leidos', 'mensaje', 'id');
+	}
+
     public function scopeNuevo($query, $date)
     {
     	if(trim($date) != '')

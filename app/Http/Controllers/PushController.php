@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 use Log;
 use App\Models\Mensajes;
+use App\Models\Leidos;
+use Auth;
 
 class PushController extends Controller
 {
@@ -41,12 +43,30 @@ class PushController extends Controller
 		$response->setCallBack(function(){
 
 			while(true){
-				$mensajes = Mensajes::nuevo(date("Y-m-d H:i:s"))->orderBy("created_at", "desc")->orderBy("id", "desc")->get();
+				$user = Auth::getUser();
+				$mensajes = Mensajes::orderBy("mensajes.created_at", "desc")
+					->orderBy("mensajes.id", "desc")
+					->take(5)
+					->get();
+				//$mensajes = Mensajes::nuevo(date("Y-m-d H:i:s"))->orderBy("created_at", "desc")->orderBy("id", "desc")->get();
 				//Log::info($mensajes);
 				if($mensajes->count() > 0){
 					$mens = array();
 					foreach ($mensajes as $mensaje) {
-						$mens[] = array('de' => $mensaje->usuario->name, 'mensaje' => $mensaje->mensaje, "fecha" => $mensaje->created_at);
+
+						$leido = Leidos::where('usuario', '=', $user->id)->where('mensaje', '=', $mensaje->id)->get()->count();
+
+						if($leido == 0)
+						{
+							$mens[] = array('de' => $mensaje->usuario->name, 'mensaje' => $mensaje->mensaje, "fecha" => $mensaje->created_at);
+
+							$leido = new Leidos();
+
+							$leido->usuario = $user->id;
+							$leido->mensaje = $mensaje->id;
+
+							$leido->save();
+						}
 					}
 
 					$mens = json_encode($mens);
@@ -59,11 +79,32 @@ class PushController extends Controller
 					if(ob_get_contents())ob_end_flush();
 					flush();
 				}
-				sleep(1);
+				sleep(0.5);
 			}
 		});
 
 
     	return $response;
+	}
+
+	public function prueba()
+	{
+		/*$user = Auth::getUser();
+		$mensajes = Mensajes::orderBy("mensajes.created_at", "desc")
+					->orderBy("mensajes.id", "desc")
+					->take(15)
+					->get();*/
+		
+
+		/*$mensajes = Mensajes::select('mensajes.*')
+					->leftJoin('leidos', 'leidos.mensaje', '=', 'mensajes.id')
+					->whereNull('leidos.usuario')
+					->orderBy("mensajes.created_at", "desc")
+					->orderBy("mensajes.id", "desc")
+					->take(50)
+					->toSql();*/
+
+		$leido = Leidos::where('usuario', '=', 1)->where('mensaje', '=', 1)->toSql();
+		dd($leido);
 	}
 }
